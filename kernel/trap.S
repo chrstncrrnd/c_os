@@ -1,7 +1,6 @@
 .section .text
 .balign 4
 .global trap_entry
-.global trap_handler
 trap_entry:
 # make room to save registers.
   addi sp, sp, -256
