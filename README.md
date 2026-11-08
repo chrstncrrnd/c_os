@@ -11,3 +11,10 @@
     - `set disassemble-next-line on`
     - `target remote :1234`
 - `i r` to dump registers.
+
+
+## References:
+- [Xv6](https://pdos.csail.mit.edu/6.828/2025/xv6/book-riscv-rev5.pdf)
+- [OS in 1K Lines](https://operating-system-in-1000-lines.vercel.app/)
+- [SBI boot process](https://popovicu.com/posts/risc-v-sbi-and-full-boot-process/)
+- [RISC-V SBI specification](https://github.com/riscv-non-isa/riscv-sbi-doc)
