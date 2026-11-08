@@ -7,9 +7,7 @@ extern char __kernel_base[];
 
 void kernel_main(void) { memset(__bss, 0, (size_t)__bss_end - (size_t)__bss); }
 
-__attribute__((section(".text.boot"))) __attribute__((naked)) void boot(void) {
-  __asm__ __volatile__("mv sp, %[stack_top]\n"
-                       "j kernel_main"
-                       :
-                       : [stack_top] "r"(__stack_top));
+__attribute__((section(".text.boot"))) void boot(void) {
+  __asm__ __volatile__("lla sp, __stack_top\n"
+                       "j kernel_main\n");
 }
