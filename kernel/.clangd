@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-fno-stack-protector, -ffreestanding, -nostdlib, -std=c2y, -xc]
