@@ -32,7 +32,7 @@ struct sbiret sbi_call(long arg0, long arg1, long arg2, long arg3, long arg4,
 // Returns 0 if the given SBI extension ID (EID) is not available, or 1 if it is
 // available unless defined as any other non-zero value by the implementation
 struct sbiret sbi_probe_extension(long extension_id) {
-  return sbi_call(extension_id, 0, 0, 0, 0, 0, 4, SBI_EXT_BASE);
+  return sbi_call(extension_id, 0, 0, 0, 0, 0, 3, SBI_EXT_BASE);
 }
 
 // === Legacy extensions ===

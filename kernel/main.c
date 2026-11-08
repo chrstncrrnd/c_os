@@ -7,7 +7,7 @@ extern char __kernel_base[];
 
 void kernel_main(void) {
   memset(__bss, 0, (size_t)__bss_end - (size_t)__bss);
-  printf("Hello, world!, this is an int: %d and in hex: %x", 10, 10);
+  printf("Hello, world!");
   for (;;) {
     __asm__ __volatile__("nop");
   }

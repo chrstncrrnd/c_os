@@ -5,6 +5,14 @@
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
 
+#define PANIC(fmt, ...)                                                        \
+  do {                                                                         \
+    printf("Kernel panicked: %s:%d: " fmt "\n", __FILE__,                      \
+           __LINE__, ##__VA_ARGS__);                                           \
+    while (1) {                                                                \
+    }                                                                          \
+  } while (0)
+
 typedef __UINT8_TYPE__ uint8_t;
 typedef __UINT16_TYPE__ uint16_t;
 typedef __UINT32_TYPE__ uint32_t;
