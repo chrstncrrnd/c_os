@@ -15,6 +15,6 @@ $(OBJS): build/%.o: ./%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf main build/
+	rm -rf kernel.elf build/
 
 .PHONY: all clean
