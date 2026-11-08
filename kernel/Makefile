@@ -3,7 +3,7 @@ CFLAGS=-std=c2y -O3 -g3 -Wall -Wextra --target=riscv64-unknown-elf -fuse-ld=lld 
 LINKER_FLAGS=-Tkernel.ld,-Map=kernel.map
 
 
-OBJS=build/main.o
+OBJS=build/main.o build/utils.o
 
 all: kernel
 

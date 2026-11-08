@@ -6,3 +6,5 @@ typedef unsigned int uint32_t;
 typedef unsigned long long uint64_t;
 // since we are on riscv 64 bits
 typedef uint64_t size_t;
+
+void *memset(void *start, char val, size_t n_bytes);
