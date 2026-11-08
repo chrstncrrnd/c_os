@@ -1,5 +1,10 @@
 #pragma once
 
+#define va_list __builtin_va_list
+#define va_start __builtin_va_start
+#define va_end __builtin_va_end
+#define va_arg __builtin_va_arg
+
 typedef __UINT8_TYPE__ uint8_t;
 typedef __UINT16_TYPE__ uint16_t;
 typedef __UINT32_TYPE__ uint32_t;
@@ -9,3 +14,6 @@ typedef __SIZE_TYPE__ size_t;
 typedef __UINTPTR_TYPE__ uintptr_t;
 
 void *memset(void *start, char val, size_t n_bytes);
+size_t strlen(const char *str);
+
+void printf(const char *fmt, ...);
