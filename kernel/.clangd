@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [-fno-stack-protector, -ffreestanding, -nostdlib, -std=c2y, -xc]
+  Add: [-fno-stack-protector, -ffreestanding, -nostdlib, -std=c2y, -xc, --target=riscv64-unknown-elf]
