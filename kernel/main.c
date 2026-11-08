@@ -13,7 +13,11 @@ void kernel_main(void) {
   // setup interrupt handling
   write_csr(stvec, (size_t)trap_entry);
 
-  printf("Hello, world!");
+  print_init();
+  printf("Booting C_OS!\n");
+
+  __asm__ __volatile__("unimp");
+
   for (;;) {
     __asm__ __volatile__("nop");
   }

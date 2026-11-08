@@ -1,7 +1,6 @@
 #include "utils.h"
 #include "sbi.h"
 
-static bool probed_dbcn_extension = false;
 static bool dbcn_extension_enabled = false;
 
 void *memset(void *start, char val, size_t n_bytes) {
@@ -22,15 +21,15 @@ size_t strlen(const char *str) {
 }
 
 static void __internal_print_char(const char c) {
-  if (!probed_dbcn_extension) {
-    dbcn_extension_enabled = (sbi_probe_extension(SBI_EXT_DBCN).value != 0);
-  }
-
   if (dbcn_extension_enabled) {
     sbi_debug_console_write_byte(c);
   } else {
     sbi_console_putchar(c);
   }
+}
+
+void print_init(void) {
+  dbcn_extension_enabled = (sbi_probe_extension(SBI_EXT_DBCN).value != 0);
 }
 
 void printf(const char *fmt, ...) {

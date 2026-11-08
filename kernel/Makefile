@@ -2,7 +2,7 @@ CC=clang
 CFLAGS=-std=c2y -O3 -g3 -Wall -Wextra --target=riscv64-unknown-elf -fno-stack-protector -ffreestanding -nostdlib -mcmodel=medany
 LINKER_FLAGS=-Tkernel.ld,-Map=kernel.map
 
-SRCS = main.c utils.c sbi.c
+SRCS = main.c utils.c sbi.c trap_handler.c
 ASM_SRCS = trap.S boot.S
 OBJS = $(SRCS:%.c=build/%.o) $(ASM_SRCS:%.S=build/%.o)
 

@@ -5,7 +5,7 @@
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
 
-#define PANIC(fmt, ...)                                                        \
+#define panic(fmt, ...)                                                        \
   do {                                                                         \
     printf("Kernel panicked: %s:%d: " fmt "\n", __FILE__,                      \
            __LINE__, ##__VA_ARGS__);                                           \
@@ -25,3 +25,4 @@ void *memset(void *start, char val, size_t n_bytes);
 size_t strlen(const char *str);
 
 void printf(const char *fmt, ...);
+void print_init(void);

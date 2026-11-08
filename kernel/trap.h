@@ -15,3 +15,4 @@
   } while (0)
 
 extern void trap_entry(void);
+void trap_handler(void);
