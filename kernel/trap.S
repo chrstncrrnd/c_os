@@ -6,7 +6,7 @@ trap_entry:
   addi sp, sp, -256
 
   sd ra, 0(sp)
-  sd sp, 8(sp)
+# sd sp, 8(sp)
   sd gp, 16(sp)
 # sd tp, 24(sp)
   sd t0, 32(sp)
@@ -28,7 +28,7 @@ trap_entry:
   call trap_handler
 
   ld ra, 0(sp)
-  ld sp, 8(sp)
+# ld sp, 8(sp)
   ld gp, 16(sp)
 # not tp (contains hartid), in case we moved CPUs
   ld t0, 32(sp)
