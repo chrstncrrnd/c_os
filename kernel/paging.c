@@ -1,4 +1,5 @@
 #include "paging.h"
+#include "defines.h"
 #include "utils.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -12,7 +13,6 @@
 #define PTE_A (1 << 6)
 #define PTE_D (1 << 7)
 #define SATP_SV39_MODE (8ULL << 60)
-#define PAGE_SIZE 4096
 
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
@@ -38,12 +38,11 @@ paddr_t alloc_zeroed_page() {
 void init_paging(void) {
   paddr_t root_table = alloc_zeroed_page();
   if (!root_table) {
-    panic("Out of memory! Tried to allocate root table but failed.");
+    panic("Out of memory! Tried to allocate kernel root table but failed.");
   }
   for (paddr_t i = (paddr_t)__kernel_base; i < (paddr_t)__free_ram_end;
        i += PAGE_SIZE) {
-    map_page((uint64_t *)root_table, i, i,
-             PTE_R | PTE_W | PTE_X | PTE_A | PTE_D);
+    map_page((uint64_t *)root_table, i, i, PTE_R | PTE_W | PTE_X);
   }
 
   write_csr(satp, SATP_SV39_MODE | (root_table >> 12));
