@@ -1,5 +1,7 @@
 #include "trap.h"
 #include "utils.h"
+#include <stddef.h>
+#include <stdint.h>
 
 void trap_handler(void) {
   uint32_t scause = read_csr(scause);

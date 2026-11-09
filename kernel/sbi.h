@@ -1,5 +1,6 @@
 #pragma once
-#include "utils.h"
+#include <stddef.h>
+#include <stdint.h>
 
 #define SBI_SUCCESS 0                // Completed successfully
 #define SBI_ERR_FAILED -1            // Failed

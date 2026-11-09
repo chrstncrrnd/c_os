@@ -1,4 +1,5 @@
 #pragma once
+#include <stddef.h>
 
 #define va_list __builtin_va_list
 #define va_start __builtin_va_start
@@ -26,13 +27,11 @@
     }                                                                          \
   } while (0)
 
-typedef __UINT8_TYPE__ uint8_t;
-typedef __UINT16_TYPE__ uint16_t;
-typedef __UINT32_TYPE__ uint32_t;
-typedef __UINT64_TYPE__ uint64_t;
+#define is_aligned(value, align) __builtin_is_aligned(value, align)
+#define align_up(value, align) __builtin_align_up(value, align)
 
-typedef __SIZE_TYPE__ size_t;
-typedef __UINTPTR_TYPE__ uintptr_t;
+typedef __UINTPTR_TYPE__ paddr_t; // physical address
+typedef __UINTPTR_TYPE__ vaddr_t; // virtual address
 
 void *memset(void *start, char val, size_t n_bytes);
 size_t strlen(const char *str);
