@@ -5,7 +5,7 @@ LINKER_FLAGS=-Tkernel/kernel.ld,-Map=build/kernel.map
 KERNEL_SRCS = main.c utils.c sbi.c trap.c paging.c
 KERNEL_ASM_SRCS = trap_entry.S boot.S
 
-# prepend kernel
+# prepend kernel/ (this is so we can define KERNEL_SRCS and KERNEL_ASM_SRCS cleanly)
 SRCS = $(KERNEL_SRCS:%=kernel/%)
 ASM_SRCS = $(KERNEL_ASM_SRCS:%=kernel/%)
 
