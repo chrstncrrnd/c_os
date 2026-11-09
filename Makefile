@@ -1,15 +1,21 @@
 CC=clang
 CFLAGS=-std=c2y -O3 -g3 -Wall -Wextra --target=riscv64-unknown-elf -fno-stack-protector -ffreestanding -nostdlib -mcmodel=medany
-LINKER_FLAGS=-Tkernel.ld,-Map=kernel.map
+LINKER_FLAGS=-Tkernel/kernel.ld,-Map=build/kernel.map
 
-SRCS = main.c utils.c sbi.c trap_handler.c
-ASM_SRCS = trap.S boot.S
+KERNEL_SRCS = main.c utils.c sbi.c trap_handler.c
+KERNEL_ASM_SRCS = trap.S boot.S
+
+# prepend kernel
+SRCS = $(KERNEL_SRCS:%=kernel/%)
+ASM_SRCS = $(KERNEL_ASM_SRCS:%=kernel/%)
+
 OBJS = $(SRCS:%.c=build/%.o) $(ASM_SRCS:%.S=build/%.o)
 
 all: kernel
 
 kernel: $(OBJS)
-	$(CC) $(CFLAGS) -fuse-ld=lld -Wl,$(LINKER_FLAGS) -o kernel.elf $(OBJS)
+	@mkdir -p build/
+	$(CC) $(CFLAGS) -fuse-ld=lld -Wl,$(LINKER_FLAGS) -o build/kernel.elf $(OBJS)
 
 build/%.o: %.c
 	@mkdir -p $(@D)
@@ -20,6 +26,6 @@ build/%.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf kernel.elf build/
+	rm -rf build/
 
 .PHONY: all clean
