@@ -1,4 +1,9 @@
 # COS (C OS)
+A(nother) RISC-V based operating system.
+
+## TODOs:
+- Mega/Giga-page mappings.
+- Trap handler from both supervisor and user mode.
 
 ## Useful QEMU notes:
 - to exit qemu input: `Ctrl + A` followed by `x`, 
