@@ -28,7 +28,7 @@ static void __internal_print_char(const char c) {
   }
 }
 
-void print_init(void) {
+void init_print(void) {
   dbcn_extension_enabled = (sbi_probe_extension(SBI_EXT_DBCN).value != 0);
 }
 

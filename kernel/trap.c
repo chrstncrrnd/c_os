@@ -9,3 +9,8 @@ void trap_handler(void) {
   panic("unexpected trap: scause=%x, stval=%x, sepc=%x\n", scause, stval,
         user_pc);
 }
+
+void init_trap(void) {
+  // write the corresponding register
+  write_csr(stvec, (size_t)trap_entry);
+}

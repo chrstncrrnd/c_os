@@ -1,3 +1,4 @@
+#include "paging.h"
 #include "trap.h"
 #include "utils.h"
 
@@ -10,10 +11,10 @@ void kernel_main(void) {
   // set bss section to 0
   memset(__bss, 0, (size_t)__bss_end - (size_t)__bss);
 
-  // setup interrupt handling
-  write_csr(stvec, (size_t)trap_entry);
+  init_trap();   // initialize interrupt handling
+  init_paging(); // initialize paging
+  init_print();  // initialize printing
 
-  print_init();
   printf("Booting C_OS!\n");
 
   __asm__ __volatile__("unimp");

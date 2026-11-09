@@ -5,6 +5,19 @@
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
 
+#define read_csr(reg)                                                          \
+  ({                                                                           \
+    size_t __tmp;                                                              \
+    __asm__ __volatile__("csrr %0, " #reg : "=r"(__tmp));                      \
+    __tmp;                                                                     \
+  })
+
+#define write_csr(reg, value)                                                  \
+  do {                                                                         \
+    size_t __tmp = (value);                                                    \
+    __asm__ __volatile__("csrw " #reg ", %0" ::"r"(__tmp));                    \
+  } while (0)
+
 #define panic(fmt, ...)                                                        \
   do {                                                                         \
     printf("Kernel panicked: %s:%d: " fmt "\n", __FILE__,                      \
@@ -25,4 +38,4 @@ void *memset(void *start, char val, size_t n_bytes);
 size_t strlen(const char *str);
 
 void printf(const char *fmt, ...);
-void print_init(void);
+void init_print(void);
