@@ -1,6 +1,6 @@
-# C OS
+# c operating system
+C as in my name not the programming language.
 
-like $$cos(x)$$
 A(nother) RISC-V based operating system.
 
 ## TODOs:
