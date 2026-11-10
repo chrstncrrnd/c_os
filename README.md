@@ -1,4 +1,4 @@
-# COS (C OS)
+# C OS (like $$cos(x)$$)
 A(nother) RISC-V based operating system.
 
 ## TODOs:
