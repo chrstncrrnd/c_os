@@ -47,28 +47,39 @@ paddr_t init_paging(void) {
   return root_table;
 }
 
-// NOTE: requires initial_size and base_address to be aligned to PAGE_SIZE
-// User page table initialization, we allocate initial_size bytes
-// returns 0 if error, otherwise the new root table pointer
-paddr_t u_init_pagetable(paddr_t base_address, size_t n_pages) {
-  if (!is_aligned(base_address, PAGE_SIZE)) {
-    return 0;
-  }
+// User page table initialization, we don't allocate any (usable) memory, only
+// set up the root table returns 0 if error, otherwise the new root table
+// pointer
+paddr_t u_init_pagetable() {
   paddr_t out_root_table = alloc_zeroed_page();
   if (!out_root_table) {
     panic("Out of memory! Tried to allocate new page table but failed!");
   }
 
+  return out_root_table;
+}
+
+// allocates `n_pages` pages and maps them to virtual addresses starting from
+// the `base_address`
+// returns `base_address` if we allocated correctly, otherwise 0
+//
+// NOTE: `base_address` must be aligned to the page size
+vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
+                      size_t n_pages) {
+  if (!is_aligned(base_address, PAGE_SIZE)) {
+    return 0;
+  }
+
   for (paddr_t i = 0; i < n_pages; ++i) {
     paddr_t new_page = alloc_zeroed_page();
     if (!new_page) {
-      panic("Out of memory! Tried to allocate new page table but failed!");
+      panic("Out of memory! Tried to allocate a new page but failed!");
     }
-    // TODO: make sure we map each section of the program accordingly
-    map_page((uint64_t *)out_root_table, (i * PAGE_SIZE) + base_address,
-             new_page, PTE_R | PTE_W | PTE_X | PTE_U);
+    map_page((uint64_t *)root_table, (i * PAGE_SIZE) + base_address, new_page,
+             PTE_R | PTE_W | PTE_X | PTE_U);
   }
-  return out_root_table;
+
+  return base_address;
 }
 
 paddr_t walk(uint64_t *root_table, vaddr_t vaddr) {
@@ -121,5 +132,8 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
   }
   // finally, write our pte to the lowest level
   uint64_t page_number = (vaddr >> 12) & 0x1FF;
+  if (table[page_number] & PTE_V) {
+    panic("Tried to map the same physical address to two virtual addresses!");
+  }
   table[page_number] = ((paddr >> 12) << 10) | flags | PTE_V;
 }
