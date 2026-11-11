@@ -12,8 +12,15 @@ extern char __kernel_base[];
 
 struct proc procs[PROCS_MAX] = {};
 
-__attribute__((aligned(4096))) void test(int k) {
-  printf("Okay test %d worked!\n", k);
+extern void test_main(void);
+
+void test_prog_runner(void) {
+  int pid = create_process();
+  map_page((uint64_t *)procs[pid].page_table_root, (vaddr_t)test_main,
+           (paddr_t)test_main, PTE_R | PTE_W | PTE_X | PTE_U);
+
+  switch_pagetable(procs[pid].page_table_root);
+  test_main();
 }
 
 void kernel_main(void) {
@@ -27,14 +34,7 @@ void kernel_main(void) {
 
   printf("Booting C_OS!\n");
 
-  uint64_t new_pagetable = u_init_pagetable(0, 100 * 4096);
-
-  map_page((paddr_t *)new_pagetable, (vaddr_t)test, (paddr_t)test,
-           PTE_R | PTE_X);
-
-  switch_pagetable(new_pagetable);
-  // test(2);
-
+  test_prog_runner();
   // __asm__ __volatile__("unimp");
 
   for (;;) {
