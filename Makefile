@@ -2,7 +2,7 @@ CC=clang
 CFLAGS=-std=c2y -O3 -g3 -Wall -Wextra --target=riscv64-unknown-elf -fno-stack-protector -ffreestanding -nostdlib -mcmodel=medany
 LINKER_FLAGS=-Tkernel/kernel.ld,-Map=build/kernel.map
 
-KERNEL_SRCS = main.c utils.c sbi.c trap.c paging.c
+KERNEL_SRCS = main.c utils.c sbi.c trap.c paging.c proc.c
 KERNEL_ASM_SRCS = trap_entry.S boot.S
 
 # prepend kernel/ (this is so we can define KERNEL_SRCS and KERNEL_ASM_SRCS cleanly)

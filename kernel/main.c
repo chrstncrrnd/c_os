@@ -1,4 +1,6 @@
+#include "defines.h"
 #include "paging.h"
+#include "proc.h"
 #include "trap.h"
 #include "utils.h"
 
@@ -6,6 +8,8 @@ extern char __bss[], __bss_end[];
 extern char __stack_top[];
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
+
+struct proc procs[PROCS_MAX];
 
 void kernel_main(void) {
   // set bss section to 0
@@ -17,7 +21,10 @@ void kernel_main(void) {
 
   printf("Booting C_OS!\n");
 
-  __asm__ __volatile__("unimp");
+  create_process(procs, (paddr_t)test_proc);
+
+  printf("BRUH");
+  // __asm__ __volatile__("unimp");
 
   for (;;) {
     __asm__ __volatile__("nop");

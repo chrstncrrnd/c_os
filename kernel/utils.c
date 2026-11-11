@@ -10,6 +10,12 @@ void *memset(void *start, char val, size_t n_bytes) {
   }
   return start;
 }
+void *memcpy(char *dest, const char *src, size_t n) {
+  for (size_t i = 0; i < n; ++i) {
+    dest[i] = src[i];
+  }
+  return dest;
+}
 
 size_t strlen(const char *str) {
   size_t len = 0;

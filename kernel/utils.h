@@ -34,6 +34,8 @@ typedef __UINTPTR_TYPE__ paddr_t; // physical address
 typedef __UINTPTR_TYPE__ vaddr_t; // virtual address
 
 void *memset(void *start, char val, size_t n_bytes);
+void *memcpy(char *dest, const char *src, size_t n);
+
 size_t strlen(const char *str);
 
 void printf(const char *fmt, ...);

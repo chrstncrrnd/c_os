@@ -4,20 +4,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define PTE_V (1 << 0)
-#define PTE_R (1 << 1)
-#define PTE_W (1 << 2)
-#define PTE_X (1 << 3)
-#define PTE_U (1 << 4)
-#define PTE_G (1 << 5)
-#define PTE_A (1 << 6)
-#define PTE_D (1 << 7)
-#define SATP_SV39_MODE (8ULL << 60)
-
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
 
 static paddr_t next_free_page;
+
+paddr_t kernel_root_table;
 
 paddr_t alloc_zeroed_page() {
   if (next_free_page == 0) {
@@ -42,12 +34,41 @@ void init_paging(void) {
   }
   for (paddr_t i = (paddr_t)__kernel_base; i < (paddr_t)__free_ram_end;
        i += PAGE_SIZE) {
+    // TODO: different sections of memory should be mapped with different
+    // permission bits
     map_page((uint64_t *)root_table, i, i, PTE_R | PTE_W | PTE_X);
   }
 
-  write_csr(satp, SATP_SV39_MODE | (root_table >> 12));
+  kernel_root_table = root_table;
+  write_csr(satp, SATP_SV39_MODE | (kernel_root_table >> 12));
 
+  // flush tlb
   __asm__ __volatile__("sfence.vma" ::: "memory");
+}
+
+// NOTE: requires initial_size and base_address to be aligned to PAGE_SIZE
+// User page table initialization, we allocate initial_size bytes
+// returns 0 if error, otherwise the new root table pointer
+paddr_t u_init_pagetable(paddr_t base_address, size_t initial_size) {
+  if (!(is_aligned(base_address, PAGE_SIZE) &&
+        is_aligned(initial_size, PAGE_SIZE))) {
+    return 0;
+  }
+  paddr_t out_root_table = alloc_zeroed_page();
+  if (!out_root_table) {
+    panic("Out of memory! Tried to allocate new page table but failed!");
+  }
+
+  for (paddr_t i = 0; i < initial_size; i += PAGE_SIZE) {
+    paddr_t new_page = alloc_zeroed_page();
+    if (!new_page) {
+      panic("Out of memory! Tried to allocate new page table but failed!");
+    }
+    // TODO: make sure we map each section of the program accordingly
+    map_page((uint64_t *)out_root_table, i + base_address, new_page,
+             PTE_R | PTE_W | PTE_X | PTE_U);
+  }
+  return out_root_table;
 }
 
 void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,

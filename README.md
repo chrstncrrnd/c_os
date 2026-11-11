@@ -24,3 +24,4 @@ A(nother) RISC-V based operating system.
 - [SBI boot process](https://popovicu.com/posts/risc-v-sbi-and-full-boot-process/)
 - [RISC-V SBI specification](https://github.com/riscv-non-isa/riscv-sbi-doc)
 - [RISC-V Documentation](https://docs.riscv.org/reference/home/index.html)
+- [RISC-V Ratified Specifications Library](https://docs.riscv.org/reference/home/index.html)
