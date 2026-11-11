@@ -7,6 +7,7 @@ A(nother) RISC-V based operating system (only kernel as of now, but operating sy
 - Mega/Giga-page mappings.
 - Trap handler from both supervisor and user mode.
 - Clean up and homogenize int 64 types.
+- User page table permissions
 
 ## Useful QEMU notes:
 - to exit qemu input: `Ctrl + A` followed by `x`, 
