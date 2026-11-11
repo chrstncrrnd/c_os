@@ -12,15 +12,18 @@ void timer(void) { panic("got timer"); }
 // stub for dev work
 void external(void) { panic("got external"); }
 
-void user_trap(void) {
-  // from user mode
-}
-
 void kernel_trap(void) {
+  uint64_t scause = read_csr(scause);
+  uint64_t stval = read_csr(stval);
+  uint64_t user_pc = read_csr(sepc);
+
   // from supervisor mode
+  panic("recieved trap while in kernel mode: scause=%x, stval=%x, sepc=%x\n",
+        scause, stval, user_pc);
 }
 
-void trap_handler(void) {
+// from user mode
+void user_trap(void) {
   uint64_t scause = read_csr(scause);
   uint64_t stval = read_csr(stval);
   uint64_t user_pc = read_csr(sepc);
