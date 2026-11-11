@@ -38,5 +38,3 @@ struct proc {
   vaddr_t ksp;             // kernel stack pointer (not kerbal space program)
   struct context ctx;
 };
-
-void create_process(struct proc procs[PROCS_MAX], uint64_t pc);

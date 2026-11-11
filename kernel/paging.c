@@ -27,7 +27,7 @@ paddr_t alloc_zeroed_page() {
   return page_start;
 }
 
-void init_paging(void) {
+paddr_t init_paging(void) {
   paddr_t root_table = alloc_zeroed_page();
   if (!root_table) {
     panic("Out of memory! Tried to allocate kernel root table but failed.");
@@ -44,6 +44,7 @@ void init_paging(void) {
 
   // flush tlb
   __asm__ __volatile__("sfence.vma" ::: "memory");
+  return root_table;
 }
 
 // NOTE: requires initial_size and base_address to be aligned to PAGE_SIZE
@@ -69,6 +70,28 @@ paddr_t u_init_pagetable(paddr_t base_address, size_t initial_size) {
              PTE_R | PTE_W | PTE_X | PTE_U);
   }
   return out_root_table;
+}
+
+paddr_t walk(uint64_t *root_table, vaddr_t vaddr) {
+  if (!is_aligned(vaddr, PAGE_SIZE)) {
+    panic("Tried to walk to an unaligned page!");
+  }
+  uint64_t *table = root_table;
+  for (size_t level = 2; level > 0; --level) {
+    uint64_t page_number = (vaddr >> (12 + 9 * level)) & 0x1FF;
+    uint64_t pte = table[page_number];
+    // we don't have a valid page table entry
+    if (!(pte & PTE_V)) {
+      return 0;
+    }
+    if (pte & (PTE_R | PTE_W | PTE_X)) {
+      panic("(UNIMPLEMENTED) map_page hit a leaf at level: %d", level);
+    }
+    // go one level deeper
+    table = (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
+  }
+  uint64_t page_number = (vaddr >> 12) & 0x1FF;
+  return (table[page_number] >> 10) << 12;
 }
 
 void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
