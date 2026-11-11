@@ -21,8 +21,6 @@ void kernel_main(void) {
 
   printf("Booting C_OS!\n");
 
-  create_process(procs, (paddr_t)test_proc);
-
   printf("BRUH");
   // __asm__ __volatile__("unimp");
 
