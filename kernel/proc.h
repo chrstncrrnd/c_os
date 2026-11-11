@@ -38,6 +38,9 @@ struct proc {
   struct context ctx;
 };
 
-int create_process(struct proc procs[PROCS_MAX]);
+int create_process(void);
 extern void switch_context(struct context *old_ctx, struct context *new_ctx);
 void yield(void);
+void init_pcb(void);
+
+extern struct proc procs[PROCS_MAX];

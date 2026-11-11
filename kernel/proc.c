@@ -4,7 +4,7 @@
 #include "utils.h"
 #include <stdint.h>
 
-int create_process(struct proc procs[PROCS_MAX]) {
+int create_process(void) {
   struct proc *proc = NULL;
   int i;
   for (i = 0; i < PROCS_MAX; i++) {
@@ -38,4 +38,13 @@ int create_process(struct proc procs[PROCS_MAX]) {
   };
   proc->state = PROC_RUNNABLE;
   return i;
+}
+
+void init_pcb(void) {
+  for (size_t i = 0; i < PROCS_MAX; ++i) {
+    procs[i] = (struct proc){
+        .pid = -1,
+        .state = PROC_UNUSED,
+    };
+  }
 }

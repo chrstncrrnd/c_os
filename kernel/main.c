@@ -10,7 +10,7 @@ extern char __stack_top[];
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
 
-struct proc procs[PROCS_MAX];
+struct proc procs[PROCS_MAX] = {};
 
 __attribute__((aligned(4096))) void test(int k) {
   printf("Okay test %d worked!\n", k);
@@ -22,10 +22,10 @@ void kernel_main(void) {
 
   init_trap();  // initialize interrupt handling
   init_print(); // initialize printing
+  init_pcb();   // initialize process control block
   paddr_t kernel_pagetable_root = init_paging(); // initialize paging
 
   printf("Booting C_OS!\n");
-  test(1);
 
   uint64_t new_pagetable = u_init_pagetable(0, 100 * 4096);
 
@@ -33,7 +33,7 @@ void kernel_main(void) {
            PTE_R | PTE_X);
 
   switch_pagetable(new_pagetable);
-  test(2);
+  // test(2);
 
   // __asm__ __volatile__("unimp");
 
