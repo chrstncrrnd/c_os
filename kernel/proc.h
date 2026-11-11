@@ -4,12 +4,18 @@
 #include "utils.h"
 #include <stdint.h>
 
-// saved registers for context switching
-struct context {
-  uint64_t ra;
-  uint64_t sp;
+// states for a given process
+enum proc_state {
+  PROC_UNUSED,
+  PROC_RUNNABLE,
+  PROC_RUNNING,
+};
 
-  // callee-saved registers
+struct context {
+  uint64_t ra; // return address
+  uint64_t sp; // stack pointer (saved to the stack ;)
+
+  // callee-saved
   uint64_t s0;
   uint64_t s1;
   uint64_t s2;
@@ -24,13 +30,6 @@ struct context {
   uint64_t s11;
 };
 
-// states for a given process
-enum proc_state {
-  PROC_UNUSED,
-  PROC_RUNNABLE,
-  PROC_RUNNING,
-};
-
 struct proc {
   int pid;
   enum proc_state state;
@@ -38,3 +37,7 @@ struct proc {
   vaddr_t ksp;             // kernel stack pointer (not kerbal space program)
   struct context ctx;
 };
+
+int create_process(struct proc procs[PROCS_MAX]);
+extern void switch_context(struct context *old_ctx, struct context *new_ctx);
+void yield(void);

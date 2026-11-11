@@ -12,7 +12,9 @@ extern char __kernel_base[];
 
 struct proc procs[PROCS_MAX];
 
-void test(int k) { printf("Okay test %d worked!\n", k); }
+__attribute__((aligned(4096))) void test(int k) {
+  printf("Okay test %d worked!\n", k);
+}
 
 void kernel_main(void) {
   // set bss section to 0
@@ -26,10 +28,11 @@ void kernel_main(void) {
   test(1);
 
   uint64_t new_pagetable = u_init_pagetable(0, 100 * 4096);
-  printf("Old: %x, new: %x \n", align_up((paddr_t)test, 4096),
-         walk((uint64_t *)kernel_pagetable_root,
-              (vaddr_t)align_up((paddr_t)test, 4096)));
-  // switch_pagetable(new_pagetable);
+
+  map_page((paddr_t *)new_pagetable, (vaddr_t)test, (paddr_t)test,
+           PTE_R | PTE_X);
+
+  switch_pagetable(new_pagetable);
   test(2);
 
   // __asm__ __volatile__("unimp");
