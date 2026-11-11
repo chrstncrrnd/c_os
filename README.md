@@ -6,6 +6,7 @@ A(nother) RISC-V based operating system.
 ## TODOs:
 - Mega/Giga-page mappings.
 - Trap handler from both supervisor and user mode.
+- Clean up and homogenize int 64 types.
 
 ## Useful QEMU notes:
 - to exit qemu input: `Ctrl + A` followed by `x`, 
