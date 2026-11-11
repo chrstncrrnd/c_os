@@ -3,8 +3,6 @@ C as in my name not the programming language.
 
 A(nother) RISC-V based operating system (only kernel as of now, but operating system sounds cool).
 
-
-
 ## TODOs:
 - Mega/Giga-page mappings.
 - Trap handler from both supervisor and user mode.
@@ -16,10 +14,11 @@ A(nother) RISC-V based operating system (only kernel as of now, but operating sy
 
 ## GDB notes:
 - Use `-s -S` flag with QEMU to expose a gdb debug port.
-- Use `gdb-multiarch`:
+- Use `gdb` (multiarch comes builtin with arch version of gdb):
     - `set architecture riscv:rv64`
     - `set disassemble-next-line on`
     - `target remote :1234`
+    - `file build/kernel.elf`
 - `i r` to dump registers.
 
 
