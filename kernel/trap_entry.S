@@ -1,8 +1,9 @@
 .section .text
 .balign 4
-.global trap_entry
-trap_entry:
+.global user_vec
+user_vec:
 # make room to save registers.
+  csrrw sp, sscratch, sp # sp = kernel stack top, sscratch = user sp
   addi sp, sp, -256
 
   sd ra, 0(sp)
@@ -24,8 +25,31 @@ trap_entry:
   sd t4, 224(sp)
   sd t5, 232(sp)
   sd t6, 240(sp)
+# No need to save sx registers since they are callee saved
 
-  call trap_handler
+  csrr t0, sscratch # ...aand the stack pointer is on the stack
+  sd t0, 8(sp)
+
+  csrr t0, sepc # save the user pc
+  sd t0, 24(sp) # where tp used to be
+
+  la t0, kernel_vec # since we're in kernel mode, set the kernel trap handler
+  csrw stvec, t0
+  call user_trap
+
+.global userret
+userret:
+  la t0, user_vec
+  csrw stvec, t0 # going back to user mode, set the correct trap handler
+
+  li t0, 1 << 8
+  csrc sstatus, t0 # sret returns to user mode
+
+  li t0, 1 << 5
+  csrs sstatus, t0
+
+  ld t0, 24(sp)
+  csrs sepc, t0
 
   ld ra, 0(sp)
 # ld sp, 8(sp)
@@ -48,4 +72,11 @@ trap_entry:
   ld t6, 240(sp)
 
   addi sp, sp, 256
+# put the kernel sp back in sscratch
+  csrw sscratch, sp
+
+  ld sp, 8(sp)
   sret
+
+kernel_vec:
+

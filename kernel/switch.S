@@ -2,7 +2,7 @@
 # void switch_context(struct context *old_ctx, struct context *new_ctx);
 # Save current registers in the old context struct, load new registers from new context.
 
-
+.section .text
 .global switch_context
 switch_context:
   sd ra, 0(a0)

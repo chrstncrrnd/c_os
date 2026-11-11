@@ -12,6 +12,14 @@ void timer(void) { panic("got timer"); }
 // stub for dev work
 void external(void) { panic("got external"); }
 
+void user_trap(void) {
+  // from user mode
+}
+
+void kernel_trap(void) {
+  // from supervisor mode
+}
+
 void trap_handler(void) {
   uint64_t scause = read_csr(scause);
   uint64_t stval = read_csr(stval);
@@ -38,5 +46,5 @@ void trap_handler(void) {
 
 void init_trap(void) {
   // write the corresponding register
-  write_csr(stvec, (size_t)trap_entry);
+  write_csr(stvec, (size_t)user_vec);
 }
