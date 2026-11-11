@@ -19,18 +19,32 @@ void test_prog_runner(void) {
   map_page((uint64_t *)procs[pid].page_table_root, (vaddr_t)test_main,
            (paddr_t)test_main, PTE_R | PTE_W | PTE_X | PTE_U);
 
-  switch_pagetable(procs[pid].page_table_root);
-  test_main();
+  printf("OKAY2\n");
+  // switch_pagetable(procs[pid].page_table_root);
+  // sret will go to U-mode (SPP=0) with interrupts enabled (SPIE=1)
+  uint64_t s = read_csr(sstatus);
+  s &= ~(1UL << 8);
+  s |= (1UL << 5);
+  write_csr(sstatus, s);
+
+  write_csr(sepc, (size_t)test_main);
+  write_csr(sscratch, procs[pid].ksp);
+
+  __asm__ __volatile__("mv   sp, %0\n" // user stack
+                       "sret\n"
+                       :
+                       : "r"(4096)
+                       : "memory");
 }
 
 void kernel_main(void) {
   // set bss section to 0
   memset(__bss, 0, (size_t)__bss_end - (size_t)__bss);
 
-  init_trap();  // initialize interrupt handling
-  init_print(); // initialize printing
-  init_pcb();   // initialize process control block
-  paddr_t kernel_pagetable_root = init_paging(); // initialize paging
+  init_trap();   // initialize interrupt handling
+  init_print();  // initialize printing
+  init_pcb();    // initialize process control block
+  init_paging(); // initialize paging
 
   printf("Booting C_OS!\n");
 

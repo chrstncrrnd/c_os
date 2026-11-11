@@ -15,11 +15,11 @@ int create_process(void) {
   }
 
   if (!proc) {
-    panic("Couldn't find spot for proc process!");
+    panic("Couldn't find space for proc process!");
   }
 
   proc->pid = i + 1;
-  proc->page_table_root = u_init_pagetable(0, 10);
+  proc->page_table_root = u_init_pagetable(0, 10 * PAGE_SIZE);
   proc->ctx = (struct context){
       .ra = 0,
       .sp = 0,
