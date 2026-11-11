@@ -19,7 +19,7 @@ int create_process(void) {
   }
 
   proc->pid = i + 1;
-  proc->page_table_root = u_init_pagetable(0, 10 * PAGE_SIZE);
+  proc->page_table_root = u_init_pagetable(0, 10);
   proc->ctx = (struct context){
       .ra = 0,
       .sp = 0,
@@ -37,7 +37,7 @@ int create_process(void) {
       .s11 = 0,
   };
   proc->state = PROC_RUNNABLE;
-  return i;
+  proc->kstack = return i;
 }
 
 void init_pcb(void) {

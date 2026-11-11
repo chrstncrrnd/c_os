@@ -50,9 +50,8 @@ paddr_t init_paging(void) {
 // NOTE: requires initial_size and base_address to be aligned to PAGE_SIZE
 // User page table initialization, we allocate initial_size bytes
 // returns 0 if error, otherwise the new root table pointer
-paddr_t u_init_pagetable(paddr_t base_address, size_t initial_size) {
-  if (!(is_aligned(base_address, PAGE_SIZE) &&
-        is_aligned(initial_size, PAGE_SIZE))) {
+paddr_t u_init_pagetable(paddr_t base_address, size_t n_pages) {
+  if (!is_aligned(base_address, PAGE_SIZE)) {
     return 0;
   }
   paddr_t out_root_table = alloc_zeroed_page();
@@ -60,14 +59,14 @@ paddr_t u_init_pagetable(paddr_t base_address, size_t initial_size) {
     panic("Out of memory! Tried to allocate new page table but failed!");
   }
 
-  for (paddr_t i = 0; i < initial_size; i += PAGE_SIZE) {
+  for (paddr_t i = 0; i < n_pages; ++i) {
     paddr_t new_page = alloc_zeroed_page();
     if (!new_page) {
       panic("Out of memory! Tried to allocate new page table but failed!");
     }
     // TODO: make sure we map each section of the program accordingly
-    map_page((uint64_t *)out_root_table, i + base_address, new_page,
-             PTE_R | PTE_W | PTE_X | PTE_U);
+    map_page((uint64_t *)out_root_table, (i * PAGE_SIZE) + base_address,
+             new_page, PTE_R | PTE_W | PTE_X | PTE_U);
   }
   return out_root_table;
 }
