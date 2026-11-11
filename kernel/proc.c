@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <stdint.h>
 
+// returns the new process' PID
 int create_process(void) {
   struct proc *proc = NULL;
   int i;
@@ -19,7 +20,7 @@ int create_process(void) {
   }
 
   proc->pid = i + 1;
-  proc->page_table_root = u_init_pagetable(0, 10);
+  proc->page_table_root = u_init_pagetable();
   proc->ctx = (struct context){
       .ra = 0,
       .sp = 0,
@@ -37,7 +38,9 @@ int create_process(void) {
       .s11 = 0,
   };
   proc->state = PROC_RUNNABLE;
-  proc->kstack = return i;
+  proc->kstack = (uint64_t *)u_alloc_pages((uint64_t *)proc->page_table_root,
+                                           4096, K_STACK_PAGES);
+  return proc->pid;
 }
 
 void init_pcb(void) {

@@ -20,7 +20,6 @@ void test_prog_runner(void) {
            (paddr_t)test_main, PTE_R | PTE_W | PTE_X | PTE_U);
 
   printf("OKAY2\n");
-  // switch_pagetable(procs[pid].page_table_root);
   // sret will go to U-mode (SPP=0) with interrupts enabled (SPIE=1)
   uint64_t s = read_csr(sstatus);
   s &= ~(1UL << 8);
@@ -28,13 +27,15 @@ void test_prog_runner(void) {
   write_csr(sstatus, s);
 
   write_csr(sepc, (size_t)test_main);
-  write_csr(sscratch, procs[pid].ksp);
+  write_csr(sscratch, (size_t)procs[pid].kstack);
 
   __asm__ __volatile__("mv   sp, %0\n" // user stack
-                       "sret\n"
                        :
-                       : "r"(4096)
+                       : "r"(procs[pid].kstack)
                        : "memory");
+
+  switch_pagetable(procs[pid].page_table_root);
+  __asm__ __volatile__("sret\n");
 }
 
 void kernel_main(void) {

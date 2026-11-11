@@ -4,7 +4,6 @@ QEMU_FLAGS="-machine virt -bios default -nographic -serial mon:stdio --no-reboot
 
 if [ "$1" = "--debug" ];then
   echo "Using QEMU debug mode..."
-  sleep 4
   QEMU_FLAGS+=" -s -S"
 fi
 

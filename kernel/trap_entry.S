@@ -40,6 +40,7 @@ user_vec:
 
 
 .global userret
+.balign 4
 userret:
   la t0, user_vec
   csrw stvec, t0 # going back to user mode, set the correct trap handler
@@ -51,7 +52,7 @@ userret:
   csrs sstatus, t0
 
   ld t0, 24(sp)
-  csrs sepc, t0
+  csrw sepc, t0
 
   ld ra, 0(sp)
 # ld sp, 8(sp)
@@ -79,7 +80,7 @@ userret:
 
   ld sp, 8(sp)
   sret
-
+.balign 4
 kernel_vec:
 # make room to save registers.
   addi sp, sp, -256

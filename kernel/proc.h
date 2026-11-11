@@ -34,7 +34,7 @@ struct proc {
   int pid;
   enum proc_state state;
   paddr_t page_table_root; // program page table
-  vaddr_t ksp;             // kernel stack pointer (not kerbal space program)
+  uint64_t *kstack;        // kernel stack pointer
   struct context ctx;
 };
 
