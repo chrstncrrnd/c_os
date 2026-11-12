@@ -13,9 +13,13 @@
 #define PTE_D (1 << 7)
 #define SATP_SV39_MODE (8ULL << 60)
 
+static inline uint64_t pagetable_root_2_satp(uint64_t page_table_root) {
+  return (SATP_SV39_MODE | (page_table_root >> 12));
+}
+
 #define switch_pagetable(new_pagetable)                                        \
   do {                                                                         \
-    write_csr(satp, SATP_SV39_MODE | ((new_pagetable) >> 12));                 \
+    write_csr(satp, pagetable_root_2_satp(new_pagetable));                     \
     __asm__ __volatile__("sfence.vma" ::: "memory");                           \
   } while (0)
 

@@ -21,6 +21,22 @@
     __asm__ __volatile__("csrw " #reg ", %0" ::"r"(__tmp));                    \
   } while (0)
 
+// csr = csr | rs
+#define bit_set_csr(reg, value)                                                \
+  do {                                                                         \
+    __asm__ __volatile__("csrs " #reg ", %0" ::"rK"(value) : "memory");        \
+  } while (0)
+
+// csr = csr & !rs
+#define bit_clear_csr(reg, value)                                              \
+  do {                                                                         \
+    __asm__ __volatile__("csrc " #reg ", %0" ::"rK"(value) : "memory");        \
+  } while (0)
+
+// interrupt utils
+static inline void interrupt_enable() { bit_set_csr(sstatus, SSTATUS_SIE); }
+static inline void interrupt_disable() { bit_clear_csr(sstatus, SSTATUS_SIE); }
+
 // === KERNEL UTILS ===
 #define panic(fmt, ...)                                                        \
   do {                                                                         \

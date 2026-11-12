@@ -24,24 +24,10 @@ int create_process(void) {
   // allocate for stack
   u_alloc_pages((uint64_t *)proc->page_table_root, K_STACK_BASE_ADDR,
                 K_STACK_PAGES, PTE_R | PTE_W);
-  proc->ctx = (struct context){
-      .ra = 0,
-      .sp = 0,
-      .s0 = 0,
-      .s1 = 0,
-      .s2 = 0,
-      .s3 = 0,
-      .s4 = 0,
-      .s5 = 0,
-      .s6 = 0,
-      .s7 = 0,
-      .s8 = 0,
-      .s9 = 0,
-      .s10 = 0,
-      .s11 = 0,
-  };
+
   proc->state = PROC_RUNNABLE;
   proc->kstack = (uint64_t *)(K_STACK_BASE_ADDR + K_STACK_SIZE);
+  proc->trapframe.kernel_sp = (uint64_t)proc->kstack;
   return proc->pid;
 }
 

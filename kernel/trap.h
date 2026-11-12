@@ -1,14 +1,8 @@
 #pragma once
 #include <stdint.h>
-// defined in trap_entry.S
-extern void user_vec(void);
-extern void userret(uint64_t satp);
-extern void kernel_vec(void);
 
-void user_trap(void);
-void kernel_trap(void);
-void init_trap(void);
-void user_return(void);
+// external symbol to where the actual trampoline starts
+extern char trampoline_start[];
 
 struct trap_frame {
   uint64_t kernel_satp;    // kernel page table
@@ -49,3 +43,16 @@ struct trap_frame {
   uint64_t t5;
   uint64_t t6;
 };
+
+// implementation in trap.c
+void user_trap(void);
+void kernel_trap(void);
+void init_trap(void);
+void user_return(int pid);
+
+// defined in trap_entry.S
+extern void kernel_vec(void);
+
+// defined in trampoline.S
+extern void user_vec(struct trap_frame *);
+extern void userret(uint64_t satp);

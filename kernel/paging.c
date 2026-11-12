@@ -43,7 +43,7 @@ paddr_t init_paging(void) {
   write_csr(satp, SATP_SV39_MODE | (kernel_root_table >> 12));
 
   // flush tlb
-  __asm__ __volatile__("sfence.vma" ::: "memory");
+  __asm__ __volatile__("sfence.vma zero, zero" ::: "memory");
   return root_table;
 }
 
