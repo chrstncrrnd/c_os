@@ -2,7 +2,6 @@
 
 #define PAGE_SIZE 4096
 
-// where the trampoline page is located
 #define MAX_VADDR ((1 << 38) - 1)
 
 #define K_STACK_SIZE 4096
@@ -10,3 +9,7 @@
 // NOTE: the kernel stack grows from K_STACK_BASE_ADDR + K_STACK_SIZE to
 // K_STACK_BASE_ADDR
 #define K_STACK_BASE_ADDR 4096
+
+// memory layout (credit to xv6 :) )
+#define TRAMPOLINE (MAX_VADDR - PAGE_SIZE)
+#define TRAP_FRAME (TRAMPOLINE - PAGE_SIZE)
