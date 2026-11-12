@@ -2,6 +2,7 @@
 
 #define PAGE_SIZE 4096
 
+// where the trampoline page is located
 #define MAX_VADDR ((1 << 38) - 1)
 
 #define K_STACK_SIZE 4096

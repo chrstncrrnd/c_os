@@ -4,7 +4,15 @@ SECTIONS {
     . = 0x80200000;
     __kernel_base = .;
 
-    .text   : ALIGN(4) { KEEP(*(.text.boot)); *(.text .text.*); }
+    .text   : ALIGN(4) {
+      KEEP(*(.text.boot));
+      *(.text .text.*);
+      . = ALIGN(0x1000);
+      _trampoline = .;
+      *(trampoline_sec)
+      . = ALIGN(0x1000);
+      ASSERT(. - _trampoline == 0x1000, "error: trampoline is larger than one page");
+    }
 
     .rodata : ALIGN(4) { *(.rodata .rodata.*); }
 
@@ -20,7 +28,7 @@ SECTIONS {
     . += 128 * 1024;
     __stack_top = .; /* 128 KB*/
 
-    . = ALIGN(4096);
+    . = ALIGN(0x1000);
     __free_ram = .;
     . += 64 * 1024 * 1024; /* 64MB */
     __free_ram_end = .;
