@@ -3,4 +3,4 @@
 test_main:
   li a7, 0
   ecall
-  ret
+  unimp
