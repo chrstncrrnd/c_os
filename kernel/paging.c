@@ -7,7 +7,7 @@
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
 
-static paddr_t next_free_page;
+static paddr_t next_free_page = 0;
 
 paddr_t kernel_root_table;
 
@@ -63,9 +63,10 @@ paddr_t u_init_pagetable() {
 // the `base_address`
 // returns `base_address` if we allocated correctly, otherwise 0
 //
-// NOTE: `base_address` must be aligned to the page size
+// NOTE: `base_address` must be aligned to the page size and flags is already
+// OR'd with PTE_U
 vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
-                      size_t n_pages) {
+                      size_t n_pages, size_t flags) {
   if (!is_aligned(base_address, PAGE_SIZE)) {
     return 0;
   }
@@ -76,7 +77,7 @@ vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
       panic("Out of memory! Tried to allocate a new page but failed!");
     }
     map_page((uint64_t *)root_table, (i * PAGE_SIZE) + base_address, new_page,
-             PTE_R | PTE_W | PTE_X | PTE_U);
+             flags | PTE_U);
   }
 
   return base_address;

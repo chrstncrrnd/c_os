@@ -18,9 +18,12 @@ int create_process(void) {
   if (!proc) {
     panic("Couldn't find space for proc process!");
   }
-
-  proc->pid = i + 1;
+  // PID starts at 0 so that procs[pid] is the correct process
+  proc->pid = i;
   proc->page_table_root = u_init_pagetable();
+  // allocate for stack
+  u_alloc_pages((uint64_t *)proc->page_table_root, K_STACK_BASE_ADDR,
+                K_STACK_PAGES, PTE_R | PTE_W);
   proc->ctx = (struct context){
       .ra = 0,
       .sp = 0,
@@ -38,8 +41,7 @@ int create_process(void) {
       .s11 = 0,
   };
   proc->state = PROC_RUNNABLE;
-  proc->kstack = (uint64_t *)u_alloc_pages((uint64_t *)proc->page_table_root,
-                                           4096, K_STACK_PAGES);
+  proc->kstack = (uint64_t *)(K_STACK_BASE_ADDR + K_STACK_SIZE);
   return proc->pid;
 }
 

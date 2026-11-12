@@ -27,4 +27,4 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
 paddr_t walk(uint64_t *root_table, vaddr_t vaddr);
 paddr_t u_init_pagetable();
 vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
-                      size_t n_pages);
+                      size_t n_pages, size_t flags);
