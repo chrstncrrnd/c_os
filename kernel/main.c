@@ -15,25 +15,20 @@ struct proc procs[PROCS_MAX] = {};
 extern void test_main(void);
 
 void test_prog_runner(void) {
+  printf("WE GOT HERE!\n");
   int pid = create_process();
   map_page((uint64_t *)procs[pid].page_table_root, (vaddr_t)test_main,
-           (paddr_t)test_main, PTE_R | PTE_W | PTE_X | PTE_U);
+           (paddr_t)test_main, PTE_R | PTE_X | PTE_U);
 
-  printf("OKAY2\n");
-  // sret will go to U-mode (SPP=0) with interrupts enabled (SPIE=1)
+  printf("POST MAP PAGE!\n");
   uint64_t s = read_csr(sstatus);
   s &= ~(1UL << 8);
   s |= (1UL << 5);
   write_csr(sstatus, s);
 
+  write_csr(stvec, (size_t)user_vec);
   write_csr(sepc, (size_t)test_main);
   write_csr(sscratch, (size_t)procs[pid].kstack);
-
-  __asm__ __volatile__("mv   sp, %0\n" // user stack
-                       :
-                       : "r"(procs[pid].kstack)
-                       : "memory");
-
   switch_pagetable(procs[pid].page_table_root);
   __asm__ __volatile__("sret\n");
 }

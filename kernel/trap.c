@@ -47,7 +47,9 @@ void user_trap(void) {
   }
 }
 
+// writes the kernel vec to stvec (note that we will need to change to the user
+// trap handler when starting a user process)
 void init_trap(void) {
   // write the corresponding register
-  write_csr(stvec, (size_t)user_vec);
+  write_csr(stvec, (size_t)kernel_vec);
 }

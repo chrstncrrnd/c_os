@@ -80,6 +80,9 @@ userret:
 
   ld sp, 8(sp)
   sret
+
+
+.global kernel_vec
 .balign 4
 kernel_vec:
 # make room to save registers.
