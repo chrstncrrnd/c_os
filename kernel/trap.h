@@ -3,6 +3,7 @@
 
 // external symbol to where the actual trampoline starts
 extern char trampoline_start[];
+extern char __trampoline[];
 
 struct trap_frame {
   uint64_t kernel_satp;    // kernel page table

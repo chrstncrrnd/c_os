@@ -1,5 +1,6 @@
 #include "trap.h"
 #include "defines.h"
+#include "paging.h"
 #include "proc.h"
 #include "utils.h"
 #include <stddef.h>
@@ -78,6 +79,10 @@ void user_return(int pid) {
 
   // set S Exception Program Counter to the saved user pc.
   write_csr(sepc, p.trapframe.epc);
+  uint64_t trampoline_userret =
+      TRAMPOLINE + ((uint64_t)userret - (uint64_t)trampoline_start);
+  ((void (*)(uint64_t))trampoline_userret)(
+      pagetable_root_2_satp(p.page_table_root));
 }
 
 // writes the kernel vec to stvec (note that we will need to change to the user

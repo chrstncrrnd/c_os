@@ -1,5 +1,6 @@
 #include "paging.h"
 #include "defines.h"
+#include "trap.h"
 #include "utils.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -32,6 +33,10 @@ paddr_t init_paging(void) {
   if (!root_table) {
     panic("Out of memory! Tried to allocate kernel root table but failed.");
   }
+  // map trampoline page:
+  map_page((uint64_t *)root_table, TRAMPOLINE, (paddr_t)__trampoline,
+           PTE_R | PTE_W | PTE_X);
+
   for (paddr_t i = (paddr_t)__kernel_base; i < (paddr_t)__free_ram_end;
        i += PAGE_SIZE) {
     // TODO: different sections of memory should be mapped with different

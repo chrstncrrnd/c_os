@@ -8,10 +8,10 @@ SECTIONS {
       KEEP(*(.text.boot));
       *(.text .text.*);
       . = ALIGN(0x1000);
-      _trampoline = .;
+      __trampoline = .;
       *(trampoline_section);
       . = ALIGN(0x1000);
-      ASSERT(. - _trampoline == 0x1000, "error: trampoline is larger than one page");
+      ASSERT(. - __trampoline == 0x1000, "error: trampoline is larger than one page");
     }
 
     .rodata : ALIGN(4) { *(.rodata .rodata.*); }

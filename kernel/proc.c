@@ -1,6 +1,7 @@
 #include "proc.h"
 #include "defines.h"
 #include "paging.h"
+#include "trap.h"
 #include "utils.h"
 #include <stdint.h>
 
@@ -28,6 +29,10 @@ int create_process(void) {
   proc->state = PROC_RUNNABLE;
   proc->kstack = (uint64_t *)(K_STACK_BASE_ADDR + K_STACK_SIZE);
   proc->trapframe.kernel_sp = (uint64_t)proc->kstack;
+
+  // allocate trampoline
+  map_page((uint64_t *)proc->page_table_root, TRAMPOLINE, (paddr_t)__trampoline,
+           PTE_R | PTE_W | PTE_X | PTE_U);
   return proc->pid;
 }
 

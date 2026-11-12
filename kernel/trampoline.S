@@ -6,7 +6,6 @@ trampoline_start:
 .balign 4
 .global user_vec
 user_vec:
-# a0 contains *(struct trap_frame)
   csrw sscratch, a0
 
   li a0, TRAP_FRAME
@@ -65,12 +64,10 @@ user_vec:
 
   jalr t0
 
-# usertrap(uint64_t satp)
-.balign 4
+# userret(uint64_t satp)
 .global userret
 userret:
   # switch to user page table
-  sfence.vma zero, zero
   csrw satp, a0
   sfence.vma zero, zero
 
@@ -112,7 +109,4 @@ userret:
 
   # return to user mode and user pc.
   sret
-
-
-
 
