@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.h"
+#include "trap.h"
 #include "utils.h"
 #include <stdint.h>
 
@@ -35,7 +36,7 @@ struct proc {
   enum proc_state state;
   paddr_t page_table_root; // program page table
   uint64_t *kstack;        // kernel stack pointer
-  struct context ctx;
+  struct trap_frame trapframe;
 };
 
 int create_process(void);
