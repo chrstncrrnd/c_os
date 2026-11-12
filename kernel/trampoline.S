@@ -1,11 +1,10 @@
 #include "defines.h"
 
-.section trampoline_sec
+.section trampoline_section
 .global trampoline_start
 trampoline_start:
 .balign 4
 .global user_vec
-.global user_trap
 user_vec:
 # a0 contains *(struct trap_frame)
   csrw sscratch, a0
@@ -51,6 +50,10 @@ user_vec:
 # ld tp, 32(a0)
 
 
+
+# load the address of usertrap(), from p->trapframe->kernel_trap
+  ld t0, 16(a0)
+
 # kernel page table root address
   ld t1, 0(a0)
 
@@ -60,8 +63,7 @@ user_vec:
   csrw satp, t1
   sfence.vma zero, zero
 
-  call user_trap
-
+  jalr t0
 
 # usertrap(uint64_t satp)
 .balign 4

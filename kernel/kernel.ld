@@ -9,7 +9,7 @@ SECTIONS {
       *(.text .text.*);
       . = ALIGN(0x1000);
       _trampoline = .;
-      *(trampoline_sec)
+      *(trampoline_section);
       . = ALIGN(0x1000);
       ASSERT(. - _trampoline == 0x1000, "error: trampoline is larger than one page");
     }
