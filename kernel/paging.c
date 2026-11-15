@@ -67,8 +67,11 @@ paddr_t u_init_pagetable() {
 // allocates `n_pages` pages and maps them to virtual addresses starting from
 // the `base_address` for the kernel.
 // returns `base_address` if we allocated correctly, otherwise 0
-vaddr_t k_alloc_pages(uint64_t *root_table, vaddr_t base_address,
-                      size_t n_pages, size_t flags) {
+// NOTE: `base_address` must be aligned to the page size.
+// The difference between this and `u_alloc_pages` is flags isn't OR'd with
+// PTE_U
+vaddr_t alloc_pages(uint64_t *root_table, vaddr_t base_address, size_t n_pages,
+                    size_t flags) {
   if (!is_aligned(base_address, PAGE_SIZE)) {
     return 0;
   }
@@ -90,22 +93,10 @@ vaddr_t k_alloc_pages(uint64_t *root_table, vaddr_t base_address,
 //
 // NOTE: `base_address` must be aligned to the page size and flags is already
 // OR'd with PTE_U
-vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
-                      size_t n_pages, size_t flags) {
-  if (!is_aligned(base_address, PAGE_SIZE)) {
-    return 0;
-  }
-
-  for (paddr_t i = 0; i < n_pages; ++i) {
-    paddr_t new_page = alloc_zeroed_page();
-    if (!new_page) {
-      panic("Out of memory! Tried to allocate a new page but failed!");
-    }
-    map_page((uint64_t *)root_table, (i * PAGE_SIZE) + base_address, new_page,
-             flags | PTE_U);
-  }
-
-  return base_address;
+inline vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
+                             size_t n_pages, size_t flags) {
+  // inline function since its just a fancy caller
+  return alloc_pages(root_table, base_address, n_pages, flags | PTE_U);
 }
 
 paddr_t walk(uint64_t *root_table, vaddr_t vaddr) {

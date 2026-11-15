@@ -19,21 +19,10 @@ void test_prog_runner(void) {
   struct proc *p = &procs[pid];
   // allocate text section
   u_alloc_pages((uint64_t *)p->page_table_root, 0x10000, 1, PTE_X | PTE_R);
-
   // find allocated text section
   paddr_t text_section = walk((uint64_t *)p->page_table_root, 0x10000);
   // copy program to text section
   memcpy((char *)text_section, (char *)test_main, PAGE_SIZE);
-
-  // trap frame page allocate:
-  k_alloc_pages((uint64_t *)p->page_table_root, TRAP_FRAME, 1,
-                PTE_R | PTE_W | PTE_X);
-  paddr_t trap_frame_location =
-      walk((uint64_t *)p->page_table_root, TRAP_FRAME);
-
-  map_page((uint64_t *)kernel_pagetable_root, TRAP_FRAME, trap_frame_location,
-           PTE_R | PTE_W | PTE_X);
-  p->trapframe = (struct trap_frame *)TRAP_FRAME;
   p->trapframe->epc = 0x10000;
   user_return(pid);
   panic("shouldn't get here");
