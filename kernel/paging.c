@@ -10,7 +10,7 @@ extern char __kernel_base[];
 
 static paddr_t next_free_page = 0;
 
-paddr_t kernel_root_table;
+paddr_t kernel_pagetable_root;
 
 paddr_t alloc_zeroed_page() {
   if (next_free_page == 0) {
@@ -35,7 +35,7 @@ paddr_t init_paging(void) {
   }
   // map trampoline page:
   map_page((uint64_t *)root_table, TRAMPOLINE, (paddr_t)__trampoline,
-           PTE_R | PTE_W | PTE_X);
+           PTE_R | PTE_X);
 
   for (paddr_t i = (paddr_t)__kernel_base; i < (paddr_t)__free_ram_end;
        i += PAGE_SIZE) {
@@ -44,8 +44,8 @@ paddr_t init_paging(void) {
     map_page((uint64_t *)root_table, i, i, PTE_R | PTE_W | PTE_X);
   }
 
-  kernel_root_table = root_table;
-  write_csr(satp, SATP_SV39_MODE | (kernel_root_table >> 12));
+  kernel_pagetable_root = root_table;
+  write_csr(satp, SATP_SV39_MODE | (kernel_pagetable_root >> 12));
 
   // flush tlb
   __asm__ __volatile__("sfence.vma zero, zero" ::: "memory");
@@ -62,6 +62,26 @@ paddr_t u_init_pagetable() {
   }
 
   return out_root_table;
+}
+
+// allocates `n_pages` pages and maps them to virtual addresses starting from
+// the `base_address` for the kernel.
+// returns `base_address` if we allocated correctly, otherwise 0
+vaddr_t k_alloc_pages(vaddr_t base_address, size_t n_pages, size_t flags) {
+  if (!is_aligned(base_address, PAGE_SIZE)) {
+    return 0;
+  }
+
+  for (paddr_t i = 0; i < n_pages; ++i) {
+    paddr_t new_page = alloc_zeroed_page();
+    if (!new_page) {
+      panic("Out of memory! Tried to allocate a new page but failed!");
+    }
+    map_page((uint64_t *)kernel_pagetable_root, (i * PAGE_SIZE) + base_address,
+             new_page, flags);
+  }
+
+  return base_address;
 }
 
 // allocates `n_pages` pages and maps them to virtual addresses starting from

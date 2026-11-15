@@ -34,8 +34,9 @@ struct context {
 struct proc {
   int pid;
   enum proc_state state;
-  paddr_t page_table_root; // program page table
-  uint64_t *kstack;        // kernel stack pointer
+  paddr_t page_table_root;     // program page table
+  uint64_t *kernel_stack_base; // kernel stack pointer
+  char *text_start;
   struct trap_frame trapframe;
 };
 
@@ -43,5 +44,6 @@ int create_process(void);
 extern void switch_context(struct context *old_ctx, struct context *new_ctx);
 void yield(void);
 void init_pcb(void);
+void start_process(int pid);
 
 extern struct proc procs[PROCS_MAX];

@@ -14,10 +14,7 @@ struct proc procs[PROCS_MAX] = {};
 
 extern void test_main(void);
 
-paddr_t kernel_pagetable_root;
-
 void test_prog_runner(void) {
-  printf("WE GOT HERE!\n");
   int pid = create_process();
   struct proc *p = &procs[pid];
   // allocate text section
@@ -38,6 +35,7 @@ void test_prog_runner(void) {
            PTE_R | PTE_W | PTE_X);
 
   user_return(pid);
+  panic("shouldn't get here");
 }
 
 void kernel_main(void) {
@@ -54,6 +52,7 @@ void kernel_main(void) {
   test_prog_runner();
   // __asm__ __volatile__("unimp");
 
+  printf("HERE\n");
   for (;;) {
     __asm__ __volatile__("nop");
   }

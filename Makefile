@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-std=c2y -O1 -g -Wall -Wextra --target=riscv64-unknown-elf -fno-stack-protector -ffreestanding -nostdlib -mcmodel=medany
+CFLAGS=-std=c2y -O0 -g3 -Wall -Wextra --target=riscv64-unknown-elf -fno-stack-protector -ffreestanding -nostdlib -mcmodel=medany
 LINKER_FLAGS=-Tkernel/kernel.ld,-Map=build/kernel.map
 
 KERNEL_SRCS = main.c utils.c sbi.c trap.c paging.c proc.c

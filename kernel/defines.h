@@ -6,9 +6,6 @@
 
 #define K_STACK_SIZE 4096
 #define K_STACK_PAGES (K_STACK_SIZE / PAGE_SIZE)
-// NOTE: the kernel stack grows from K_STACK_BASE_ADDR + K_STACK_SIZE to
-// K_STACK_BASE_ADDR
-#define K_STACK_BASE_ADDR 4096
 
 // memory layout (credit to xv6 :) )
 #define TRAMPOLINE (MAX_VADDR - PAGE_SIZE)

@@ -67,8 +67,8 @@ void user_return(int pid) {
   // the process next traps into the kernel
   p.trapframe.kernel_satp = read_csr(satp); // kernel page table root
   p.trapframe.kernel_sp =
-      (uint64_t)(p.kstack + PAGE_SIZE); // process's kernel stack (we set the
-                                        // stack pointer back to the base)
+      (uint64_t)(p.kernel_stack_base); // process's kernel stack (we set the
+                                       // stack pointer back to the base)
   p.trapframe.kernel_trap = (uint64_t)user_trap;
 
   // return to user mode

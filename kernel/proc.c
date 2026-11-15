@@ -23,16 +23,13 @@ int create_process(void) {
   proc->pid = i;
   proc->page_table_root = u_init_pagetable();
   // allocate for stack
-  u_alloc_pages((uint64_t *)proc->page_table_root, K_STACK_BASE_ADDR,
-                K_STACK_PAGES, PTE_R | PTE_W);
 
   proc->state = PROC_RUNNABLE;
-  proc->kstack = (uint64_t *)(K_STACK_BASE_ADDR + K_STACK_SIZE);
-  proc->trapframe.kernel_sp = (uint64_t)proc->kstack;
+  proc->kernel_stack_base = (uint64_t *)(alloc_zeroed_page() + PAGE_SIZE);
 
-  // allocate trampoline
+  // map trampoline
   map_page((uint64_t *)proc->page_table_root, TRAMPOLINE, (paddr_t)__trampoline,
-           PTE_R | PTE_W | PTE_X | PTE_U);
+           PTE_R | PTE_X);
   return proc->pid;
 }
 
