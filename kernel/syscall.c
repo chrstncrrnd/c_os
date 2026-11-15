@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 uint64_t sys_print() {
-  printf("Print systemcall!");
+  printf("Print systemcall!\n");
   return 0;
 }
 

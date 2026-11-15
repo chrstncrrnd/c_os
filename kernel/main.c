@@ -18,12 +18,12 @@ void test_prog_runner(void) {
   int pid = create_process();
   struct proc *p = &procs[pid];
   // allocate text section
-  u_alloc_pages((uint64_t *)p->page_table_root, 0x10000, 1, PTE_X | PTE_R);
+  u_alloc_pages((uint64_t *)p->page_table_root, 0x40000, 1, PTE_X | PTE_R);
   // find allocated text section
-  paddr_t text_section = walk((uint64_t *)p->page_table_root, 0x10000);
+  paddr_t text_section = walk((uint64_t *)p->page_table_root, 0x40000);
   // copy program to text section
   memcpy((char *)text_section, (char *)test_main, PAGE_SIZE);
-  p->trapframe->epc = 0x10000;
+  p->trapframe->epc = 0x40000;
   current_proc = p;
   user_enter();
   panic("shouldn't get here");

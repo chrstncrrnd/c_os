@@ -18,11 +18,13 @@ void kernel_trap(void) {
 }
 
 // from user mode
-void user_trap(void) {
+uint64_t user_trap(void) {
   uint64_t scause = read_csr(scause);
   uint64_t stval = read_csr(stval);
   uint64_t user_pc = read_csr(sepc);
+  current_proc->trapframe->epc = user_pc;
 
+  write_csr(stvec, (uint64_t)kernel_vec);
   // 1 bit to indicate if we had an interrupt
   bool interrupt = (scause >> 63);
   if (interrupt) {
@@ -33,19 +35,22 @@ void user_trap(void) {
   switch (scause) {
   case 8:
     // ECALL
+    current_proc->trapframe->epc += 4;
+    interrupt_enable();
     handle_syscall();
-    write_csr(sepc, user_pc + 4);
     break;
   case 12:
   case 13:
   case 15: // page faults
     break;
   default:
-    panic("unexpected trap: scause=%lx stval=%lx sepc=%lx", scause, stval,
+    panic("unexpected trap: scause=%x stval=%x sepc=%x", scause, stval,
           user_pc);
   }
 
   prepare_user_return();
+
+  return pagetable_root_2_satp(current_proc->page_table_root);
 }
 
 void user_enter() {

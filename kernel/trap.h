@@ -46,7 +46,7 @@ struct trap_frame {
 };
 
 // implementation in trap.c
-void user_trap(void);
+uint64_t user_trap(void);
 void kernel_trap(void);
 void init_trap(void);
 void prepare_user_return();
