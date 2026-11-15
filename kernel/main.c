@@ -24,7 +24,6 @@ void test_prog_runner(void) {
   paddr_t text_section = walk((uint64_t *)p->page_table_root, 0x10000);
   // copy program to text section
   memcpy((char *)text_section, (char *)test_main, PAGE_SIZE);
-  p->trapframe.epc = 0x10000;
 
   // trap frame page allocate:
   k_alloc_pages((uint64_t *)p->page_table_root, TRAP_FRAME, 1,
@@ -34,7 +33,8 @@ void test_prog_runner(void) {
 
   map_page((uint64_t *)kernel_pagetable_root, TRAP_FRAME, trap_frame_location,
            PTE_R | PTE_W | PTE_X);
-
+  p->trapframe = (struct trap_frame *)TRAP_FRAME;
+  p->trapframe->epc = 0x10000;
   user_return(pid);
   panic("shouldn't get here");
 }

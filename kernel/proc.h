@@ -37,7 +37,7 @@ struct proc {
   paddr_t page_table_root;     // program page table
   uint64_t *kernel_stack_base; // kernel stack pointer
   char *text_start;
-  struct trap_frame trapframe;
+  struct trap_frame *trapframe;
 };
 
 int create_process(void);

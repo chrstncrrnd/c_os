@@ -65,11 +65,11 @@ void user_return(int pid) {
 
   // set up trapframe values that uservec will need when
   // the process next traps into the kernel
-  p.trapframe.kernel_satp = read_csr(satp); // kernel page table root
-  p.trapframe.kernel_sp =
+  p.trapframe->kernel_satp = read_csr(satp); // kernel page table root
+  p.trapframe->kernel_sp =
       (uint64_t)(p.kernel_stack_base); // process's kernel stack (we set the
                                        // stack pointer back to the base)
-  p.trapframe.kernel_trap = (uint64_t)user_trap;
+  p.trapframe->kernel_trap = (uint64_t)user_trap;
 
   // return to user mode
   unsigned long x = read_csr(sstatus);
@@ -78,7 +78,7 @@ void user_return(int pid) {
   write_csr(sstatus, x);
 
   // set S Exception Program Counter to the saved user pc.
-  write_csr(sepc, p.trapframe.epc);
+  write_csr(sepc, p.trapframe->epc);
   uint64_t trampoline_userret =
       TRAMPOLINE + ((uint64_t)userret - (uint64_t)trampoline_start);
   ((void (*)(uint64_t))trampoline_userret)(
