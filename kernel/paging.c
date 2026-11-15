@@ -45,7 +45,7 @@ paddr_t init_paging(void) {
   }
 
   kernel_pagetable_root = root_table;
-  write_csr(satp, SATP_SV39_MODE | (kernel_pagetable_root >> 12));
+  write_csr(satp, pagetable_root_2_satp(kernel_pagetable_root));
 
   // flush tlb
   __asm__ __volatile__("sfence.vma zero, zero" ::: "memory");
@@ -67,7 +67,8 @@ paddr_t u_init_pagetable() {
 // allocates `n_pages` pages and maps them to virtual addresses starting from
 // the `base_address` for the kernel.
 // returns `base_address` if we allocated correctly, otherwise 0
-vaddr_t k_alloc_pages(vaddr_t base_address, size_t n_pages, size_t flags) {
+vaddr_t k_alloc_pages(uint64_t *root_table, vaddr_t base_address,
+                      size_t n_pages, size_t flags) {
   if (!is_aligned(base_address, PAGE_SIZE)) {
     return 0;
   }
@@ -77,8 +78,7 @@ vaddr_t k_alloc_pages(vaddr_t base_address, size_t n_pages, size_t flags) {
     if (!new_page) {
       panic("Out of memory! Tried to allocate a new page but failed!");
     }
-    map_page((uint64_t *)kernel_pagetable_root, (i * PAGE_SIZE) + base_address,
-             new_page, flags);
+    map_page(root_table, (i * PAGE_SIZE) + base_address, new_page, flags);
   }
 
   return base_address;

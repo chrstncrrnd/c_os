@@ -27,7 +27,8 @@ void test_prog_runner(void) {
   p->trapframe.epc = 0x10000;
 
   // trap frame page allocate:
-  u_alloc_pages((uint64_t *)p->page_table_root, TRAP_FRAME, 1, PTE_X | PTE_R);
+  k_alloc_pages((uint64_t *)p->page_table_root, TRAP_FRAME, 1,
+                PTE_R | PTE_W | PTE_X);
   paddr_t trap_frame_location =
       walk((uint64_t *)p->page_table_root, TRAP_FRAME);
 

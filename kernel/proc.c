@@ -26,7 +26,6 @@ int create_process(void) {
 
   proc->state = PROC_RUNNABLE;
   proc->kernel_stack_base = (uint64_t *)(alloc_zeroed_page() + PAGE_SIZE);
-
   // map trampoline
   map_page((uint64_t *)proc->page_table_root, TRAMPOLINE, (paddr_t)__trampoline,
            PTE_R | PTE_X);

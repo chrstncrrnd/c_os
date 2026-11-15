@@ -33,7 +33,7 @@ paddr_t walk(uint64_t *root_table, vaddr_t vaddr);
 paddr_t u_init_pagetable();
 vaddr_t u_alloc_pages(uint64_t *root_table, vaddr_t base_address,
                       size_t n_pages, size_t flags);
-vaddr_t k_alloc_pages(vaddr_t base_address, size_t n_pages, size_t flags);
-
+vaddr_t k_alloc_pages(uint64_t *root_table, vaddr_t base_address,
+                      size_t n_pages, size_t flags);
 // kernel root table pointer
 extern paddr_t kernel_pagetable_root;
