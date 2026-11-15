@@ -1,7 +1,7 @@
 # C operating system
 C as in my name not the programming language.
 
-A(nother) RISC-V based operating system (technically only the kernel is implemented as of now).
+A RISC-V based operating system (technically only the kernel is implemented as of now).
 
 ## Requirements:
 - Clang (Tested with version 23.1)
