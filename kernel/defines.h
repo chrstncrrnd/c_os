@@ -1,3 +1,4 @@
+#pragma once
 #define PROCS_MAX 8
 
 #define PAGE_SIZE 4096
