@@ -49,11 +49,12 @@ struct trap_frame {
 void user_trap(void);
 void kernel_trap(void);
 void init_trap(void);
-void user_return(int pid);
+void prepare_user_return();
+void user_enter();
 
-// defined in trap_entry.S
+// implemented in trap_entry.S
 extern void kernel_vec(void);
 
-// defined in trampoline.S
+// implemented in trampoline.S
 extern void user_vec(struct trap_frame *);
 extern void userret(uint64_t satp);

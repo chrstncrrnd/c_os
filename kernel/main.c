@@ -24,7 +24,8 @@ void test_prog_runner(void) {
   // copy program to text section
   memcpy((char *)text_section, (char *)test_main, PAGE_SIZE);
   p->trapframe->epc = 0x10000;
-  user_return(pid);
+  current_proc = p;
+  user_enter();
   panic("shouldn't get here");
 }
 

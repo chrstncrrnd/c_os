@@ -5,6 +5,8 @@
 #include "utils.h"
 #include <stdint.h>
 
+struct proc *current_proc;
+
 // returns the new process' PID
 int create_process(void) {
   struct proc *proc = NULL;

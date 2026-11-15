@@ -26,3 +26,4 @@ void init_pcb(void);
 void start_process(int pid);
 
 extern struct proc procs[PROCS_MAX];
+extern struct proc *current_proc;

@@ -2,18 +2,10 @@
 #include "defines.h"
 #include "paging.h"
 #include "proc.h"
+#include "syscall.h"
 #include "utils.h"
 #include <stddef.h>
 #include <stdint.h>
-
-// stub for dev work
-void ecall(void) { panic("Got ecall"); }
-
-// stub for dev work
-void timer(void) { panic("got timer"); }
-
-// stub for dev work
-void external(void) { panic("got external"); }
 
 void kernel_trap(void) {
   uint64_t scause = read_csr(scause);
@@ -33,26 +25,38 @@ void user_trap(void) {
 
   // 1 bit to indicate if we had an interrupt
   bool interrupt = (scause >> 63);
-  if (!interrupt) {
-    panic("unexpected trap: scause=%x, stval=%x, sepc=%x\n", scause, stval,
-          user_pc);
+  if (interrupt) {
+    panic("unexpected trap (interrupt): scause=%x, stval=%x, sepc=%x\n", scause,
+          stval, user_pc);
   }
 
   switch (scause) {
-  case 1:
-    ecall();
+  case 8:
+    // ECALL
+    handle_syscall();
+    write_csr(sepc, user_pc + 4);
     break;
-  case 5:
-    timer();
+  case 12:
+  case 13:
+  case 15: // page faults
     break;
-  case 9:
-    external();
+  default:
+    panic("unexpected trap: scause=%lx stval=%lx sepc=%lx", scause, stval,
+          user_pc);
   }
+
+  prepare_user_return();
 }
 
-void user_return(int pid) {
-  struct proc p = procs[pid];
+void user_enter() {
+  prepare_user_return();
+  uint64_t trampoline_userret =
+      TRAMPOLINE + ((uint64_t)userret - (uint64_t)trampoline_start);
+  ((void (*)(uint64_t))trampoline_userret)(
+      pagetable_root_2_satp(current_proc->page_table_root));
+}
 
+void prepare_user_return() {
   // we're about to switch the destination of traps from
   // kerneltrap() to usertrap(). because a trap from kernel
   // code to usertrap would be a disaster, turn off interrupts.
@@ -65,11 +69,13 @@ void user_return(int pid) {
 
   // set up trapframe values that uservec will need when
   // the process next traps into the kernel
-  p.trapframe->kernel_satp = read_csr(satp); // kernel page table root
-  p.trapframe->kernel_sp =
-      (uint64_t)(p.kernel_stack_base); // process's kernel stack (we set the
-                                       // stack pointer back to the base)
-  p.trapframe->kernel_trap = (uint64_t)user_trap;
+  current_proc->trapframe->kernel_satp =
+      read_csr(satp); // kernel page table root
+  current_proc->trapframe->kernel_sp =
+      (uint64_t)(current_proc
+                     ->kernel_stack_base); // process's kernel stack (we set the
+                                           // stack pointer back to the base)
+  current_proc->trapframe->kernel_trap = (uint64_t)user_trap;
 
   // return to user mode
   unsigned long x = read_csr(sstatus);
@@ -78,11 +84,7 @@ void user_return(int pid) {
   write_csr(sstatus, x);
 
   // set S Exception Program Counter to the saved user pc.
-  write_csr(sepc, p.trapframe->epc);
-  uint64_t trampoline_userret =
-      TRAMPOLINE + ((uint64_t)userret - (uint64_t)trampoline_start);
-  ((void (*)(uint64_t))trampoline_userret)(
-      pagetable_root_2_satp(p.page_table_root));
+  write_csr(sepc, current_proc->trapframe->epc);
 }
 
 // writes the kernel vec to stvec (note that we will need to change to the user
