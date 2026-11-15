@@ -8,6 +8,8 @@
 #define SSTATUS_SIE (1L << 1)  // Supervisor Interrupt Enable
 #define SSTATUS_UIE (1L << 0)  // User Interrupt Enable
 
+#define n_elems(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 #define read_csr(reg)                                                          \
   ({                                                                           \
     size_t __tmp;                                                              \
