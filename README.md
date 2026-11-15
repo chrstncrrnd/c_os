@@ -1,4 +1,4 @@
-# operating system
+# C operating system
 C as in my name not the programming language.
 
 A(nother) RISC-V based operating system (only kernel as of now, but operating system sounds cool).
