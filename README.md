@@ -1,4 +1,4 @@
-# c operating system
+# operating system
 C as in my name not the programming language.
 
 A(nother) RISC-V based operating system (only kernel as of now, but operating system sounds cool).
@@ -15,7 +15,9 @@ A(nother) RISC-V based operating system (only kernel as of now, but operating sy
 
 ## GDB notes:
 - Use `-s -S` flag with QEMU to expose a gdb debug port.
-- Use `gdb` (multiarch comes builtin with arch version of gdb):
+- The file `.gdbinit` contains the startup commands. You may need to update 
+gdb's permissions in order for this to be executed automatically. If not,
+input them one by one.
     - `set architecture riscv:rv64`
     - `set disassemble-next-line on`
     - `target remote :1234`
