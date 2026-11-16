@@ -57,7 +57,6 @@ void kernel_main(void) {
   test_prog_runner();
   // __asm__ __volatile__("unimp");
 
-  printf("HERE\n");
   for (;;) {
     __asm__ __volatile__("nop");
   }

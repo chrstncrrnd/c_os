@@ -29,9 +29,10 @@ You can use the `--debug` flag to expose a debug port on QEMU.
 ## Rough roadmap:
 - (DONE) Virtual memory and trap handling.
 - (IN PROGRESS) Allow for multiple processes and basic process scheduling (with `fork()` and other syscalls).
+- Deallocation of pages and empty pagetable gc.
+- `exit` system call.
 - File system.
-- Loading of ELF files.
-- Deallocation of pages.
+- Loading of ELF files (maybe here we can implement the exec syscall).
 - Allow for multiple CPU cores (with locking).
 - Software threads and hardware thread mapping.
 - Page faults and lazy memory allocation (maybe COW systems).
