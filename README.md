@@ -27,10 +27,10 @@ You can use the `--debug` flag to expose a debug port on QEMU.
 
 
 ## Rough roadmap:
-- (IN PROGRESS) Virtual memory and trap handling.
-- Loading of ELF files.
-- Allow for multiple processes and basic process scheduling (with `fork()` and other syscalls).
+- (DONE) Virtual memory and trap handling.
+- (IN PROGRESS) Allow for multiple processes and basic process scheduling (with `fork()` and other syscalls).
 - File system.
+- Loading of ELF files.
 - Deallocation of pages.
 - Allow for multiple CPU cores (with locking).
 - Software threads and hardware thread mapping.
