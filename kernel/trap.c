@@ -25,6 +25,7 @@ uint64_t user_trap(void) {
   current_proc->trapframe->epc = user_pc;
 
   write_csr(stvec, (uint64_t)kernel_vec);
+
   // 1 bit to indicate if we had an interrupt
   bool interrupt = (scause >> 63);
   if (interrupt) {

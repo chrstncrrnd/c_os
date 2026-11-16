@@ -8,6 +8,10 @@
 #define K_STACK_SIZE 4096
 #define K_STACK_PAGES (K_STACK_SIZE / PAGE_SIZE)
 
+#define U_STACK_TOP 0x80000
+#define U_STACK_SIZE 4096
+#define U_STACK_PAGES (U_STACK_SIZE / PAGE_SIZE)
+
 // memory layout (credit to xv6 :) )
 #define TRAMPOLINE (MAX_VADDR - PAGE_SIZE)
 #define TRAP_FRAME (TRAMPOLINE - PAGE_SIZE)
