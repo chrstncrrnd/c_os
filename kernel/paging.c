@@ -12,6 +12,11 @@ static paddr_t next_free_page = 0;
 
 paddr_t kernel_pagetable_root;
 
+// extract the 9 bit page number at level from vaddr
+inline uint64_t extract_page_number(vaddr_t vaddr, size_t level) {
+  return (vaddr >> (12 + 9 * level)) & 0x1FF;
+}
+
 paddr_t alloc_zeroed_page() {
   if (next_free_page == 0) {
     next_free_page = (paddr_t)__free_ram;
@@ -125,61 +130,15 @@ paddr_t walk(uint64_t *root_table, vaddr_t vaddr) {
   return (table[page_number] >> 10) << 12;
 }
 
+bool __internal_unmap_page(uint64_t *prev_pagetable, vaddr_t vaddr,
+                           size_t level) {}
+
 // unmap the page starting at vaddr.
 // Cleans up unused page tables, however if the root_table is empty, it is not
 // cleaned up.
 //
 // NOTE: requires vaddr to be aligned to PAGE_SIZE
-void unmap_page(uint64_t *root_table, vaddr_t vaddr) {
-  if (!is_aligned(vaddr, PAGE_SIZE)) {
-    panic("Tried to unmap an unaligned page!");
-  }
-
-  uint64_t *table = root_table;
-
-  uint64_t *vitisted_tables[2] = {0, 0};
-
-  for (size_t level = 2; level > 0; --level) {
-    uint64_t page_number = (vaddr >> (12 + 9 * level)) & 0x1FF;
-    uint64_t pte = table[page_number];
-    // we don't have a valid page table entry
-    if (!(pte & PTE_V)) {
-      // we tried to unmap an inexistent mapping.
-      // No need to throw an error here.
-      return;
-    }
-    if (pte & (PTE_R | PTE_W | PTE_X)) {
-      panic("(UNIMPLEMENTED) map_page hit a leaf at level: %d", level);
-    }
-    // go one level deeper
-    table = (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
-    vitisted_tables[level - 1] = table;
-  }
-  // finally, write our pte to the lowest level
-  uint64_t page_number = (vaddr >> 12) & 0x1FF;
-  table[page_number] = 0;
-
-  uint64_t *prev_table = table[page_number];
-
-  size_t n_ptes = (PAGE_SIZE / sizeof(uint64_t));
-
-  // step back through the pages we traversed, and free whichever ones had no
-  // entries
-  for (size_t i = 0; i < 2; ++i) {
-    table = vitisted_tables[i];
-
-    for (size_t ind = 0; ind < n_ptes; ++ind) {
-      // if we have a valid page, we cant remove this page table nor its parent
-      if (table[ind] & PTE_V) {
-        break;
-      }
-    }
-
-    // if we got here, then no entries were valid in this pagetable, free it.
-    free_page(table);
-    prev_table = table;
-  }
-}
+void unmap_page(uint64_t *root_table, vaddr_t vaddr) {}
 
 // sv39 page mapping function.
 //
@@ -197,7 +156,7 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
   }
   uint64_t *table = root_table;
   for (size_t level = 2; level > 0; --level) {
-    uint64_t page_number = (vaddr >> (12 + 9 * level)) & 0x1FF;
+    uint64_t page_number = extract_page_number(vaddr, level);
     uint64_t pte = table[page_number];
     // we don't have a valid page table entry
     if (!(pte & PTE_V)) {
@@ -216,7 +175,7 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
     table = (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
   }
   // finally, write our pte to the lowest level
-  uint64_t page_number = (vaddr >> 12) & 0x1FF;
+  uint64_t page_number = extract_page_number(vaddr, 0);
   if (table[page_number] & PTE_V) {
     panic("Tried to map the same physical address to two virtual addresses!");
   }
