@@ -17,6 +17,15 @@ inline uint64_t extract_page_number(vaddr_t vaddr, size_t level) {
   return (vaddr >> (12 + 9 * level)) & 0x1FF;
 }
 
+inline uint64_t *pte_2_addr(uint64_t pte) {
+  return (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
+}
+
+// Caller is responsible for ORing this with the correct flags
+inline uint64_t paddr_2_pte(paddr_t paddr) {
+  return ((paddr >> 12) << 10) | PTE_V;
+}
+
 paddr_t alloc_zeroed_page() {
   if (next_free_page == 0) {
     next_free_page = (paddr_t)__free_ram;
@@ -124,21 +133,72 @@ paddr_t walk(uint64_t *root_table, vaddr_t vaddr) {
       panic("(UNIMPLEMENTED) map_page hit a leaf at level: %d", level);
     }
     // go one level deeper
-    table = (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
+    table = pte_2_addr(pte);
   }
   uint64_t page_number = (vaddr >> 12) & 0x1FF;
   return (table[page_number] >> 10) << 12;
 }
 
-bool __internal_unmap_page(uint64_t *prev_pagetable, vaddr_t vaddr,
-                           size_t level) {}
+// internal recursive function for freeing a specific page
+// returns true if the page was freed. The idea is that if we call this and it
+// returns true, we should clear its pte
+bool __internal_unmap_page(uint64_t *pagetable, vaddr_t vaddr, size_t level) {
+  // base case, we are at the level where the pte is for the actual page
+  if (level == -1) {
+    // clearly unmapping a page should not cause it to be freed, hence we just
+    // set its pte to 0, this is done by the caller.
+    return true;
+  }
+  uint64_t page_number = extract_page_number(vaddr, level);
+  uint64_t pte = pagetable[page_number];
+  // we don't have a valid page table entry
+  if (!(pte & PTE_V)) {
+    // invalid reference, we can return false since it has been cleared already
+    return false;
+  }
+  // guard
+  if ((pte & (PTE_R | PTE_W | PTE_X)) && level > 0) {
+    panic("(UNIMPLEMENTED) map_page hit a leaf at level: %d", level);
+  }
+  // go one level deeper
+  uint64_t *new_table = pte_2_addr(pte);
+
+  // if the page was cleared, we must clear the page table entry
+  if (__internal_unmap_page(new_table, vaddr, level - 1)) {
+    // freeing the data page is left to the caller
+    if (level > 0) {
+      free_page(new_table);
+    }
+    pagetable[page_number] = 0;
+  } else {
+    // this is at least one valid entry in this page table so we can be sure
+    // that its not empty
+    return false;
+  }
+
+  // each pte is 64 bits, and we have a whole page of them.
+  size_t n_ptes = (PAGE_SIZE / sizeof(uint64_t));
+
+  // scan to see if the page is now empty, now that we have gotten rid of that
+  // entry
+  for (size_t i = 0; i < n_ptes; ++i) {
+    // we have found a valid pte, hence we cannot clear this table
+    if (pagetable[i] & PTE_V) {
+      return false;
+    }
+  }
+  return true;
+}
 
 // unmap the page starting at vaddr.
 // Cleans up unused page tables, however if the root_table is empty, it is not
 // cleaned up.
 //
 // NOTE: requires vaddr to be aligned to PAGE_SIZE
-void unmap_page(uint64_t *root_table, vaddr_t vaddr) {}
+void unmap_page(uint64_t *root_table, vaddr_t vaddr) {
+  __internal_unmap_page(root_table, vaddr, 2);
+  __asm__ __volatile__("sfence.vma %0, zero" ::"r"(vaddr) : "memory");
+}
 
 // sv39 page mapping function.
 //
@@ -162,7 +222,7 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
     if (!(pte & PTE_V)) {
       // allocate a new page
       paddr_t new_page = alloc_zeroed_page();
-      pte = ((new_page >> 12) << 10) | PTE_V;
+      pte = paddr_2_pte(new_page);
       // write our new page table entry
       table[page_number] = pte;
       table = (uint64_t *)new_page;
@@ -172,12 +232,12 @@ void map_page(uint64_t *root_table, vaddr_t vaddr, paddr_t paddr,
       panic("(UNIMPLEMENTED) map_page hit a leaf at level: %d", level);
     }
     // go one level deeper
-    table = (uint64_t *)(((pte >> 10) & ((1ULL << 44) - 1)) << 12);
+    table = pte_2_addr(pte);
   }
   // finally, write our pte to the lowest level
   uint64_t page_number = extract_page_number(vaddr, 0);
   if (table[page_number] & PTE_V) {
     panic("Tried to map the same physical address to two virtual addresses!");
   }
-  table[page_number] = ((paddr >> 12) << 10) | flags | PTE_V;
+  table[page_number] = paddr_2_pte(paddr) | flags;
 }
