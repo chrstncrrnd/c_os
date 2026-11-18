@@ -8,7 +8,13 @@
 extern char __free_ram[], __free_ram_end[];
 extern char __kernel_base[];
 
-static paddr_t next_free_page = 0;
+// our free page tracking is a linked list, where each free page keeps track of
+// the next one. We keep the root as a global variable to find the head.
+struct free_page {
+  struct free_page *next;
+};
+
+static struct free_page *free_page_list = NULL;
 
 paddr_t kernel_pagetable_root;
 
@@ -27,26 +33,34 @@ inline uint64_t paddr_2_pte(paddr_t paddr) {
 }
 
 paddr_t alloc_zeroed_page() {
-  if (next_free_page == 0) {
-    next_free_page = (paddr_t)__free_ram;
+  if (free_page_list == NULL) {
+    // TODO: should we panic or return NULL here?
+    panic("Out of memory! All pages in free ram are taken.");
   }
 
-  if (next_free_page + PAGE_SIZE > (paddr_t)__free_ram_end) {
-    return 0;
-  }
+  struct free_page *to_occupy = free_page_list;
+  free_page_list = to_occupy->next;
 
-  paddr_t page_start = next_free_page;
-
-  memset((void *)page_start, 0, PAGE_SIZE);
-  next_free_page += PAGE_SIZE;
-  return page_start;
+  memset((void *)to_occupy, 0, PAGE_SIZE);
+  return (paddr_t)to_occupy;
 }
 
-// TODO: keep track of free pages.
 // free the page at paddr
-void free_page(uint64_t *paddr) {}
+void free_page(uint64_t *paddr) {
+  struct free_page *new_free_page = (struct free_page *)paddr;
+  new_free_page->next = free_page_list;
+  free_page_list = new_free_page;
+}
 
 paddr_t init_paging(void) {
+  for (paddr_t i = (paddr_t)__free_ram; i < (paddr_t)__free_ram_end;
+       i += PAGE_SIZE) {
+    // by freeing the pages, we set up the linked list automatically
+    free_page((uint64_t *)i);
+  }
+
+  // once the linked list has been set up, we can allocate the actual page
+  // tables
   paddr_t root_table = alloc_zeroed_page();
   if (!root_table) {
     panic("Out of memory! Tried to allocate kernel root table but failed.");
