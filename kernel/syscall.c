@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "paging.h"
 #include "proc.h"
 #include "utils.h"
 #include <stdint.h>
@@ -13,8 +14,14 @@ uint64_t sys_yield() {
   return 0;
 }
 
+uint64_t sys_exit() {
+  unmap_page((uint64_t *)current_proc->page_table_root, 0);
+  return 0;
+}
+
 static uint64_t (*syscalls[])(void) = {[SYS_PRINT] = (sys_print),
-                                       [SYS_YIELD] = (sys_yield)};
+                                       [SYS_YIELD] = (sys_yield),
+                                       [SYS_EXIT] = (sys_exit)};
 
 void handle_syscall() {
   int num = current_proc->trapframe->a7;
