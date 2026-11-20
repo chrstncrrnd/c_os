@@ -214,6 +214,26 @@ void unmap_page(uint64_t *root_table, vaddr_t vaddr) {
   __asm__ __volatile__("sfence.vma %0, zero" ::"r"(vaddr) : "memory");
 }
 
+// internal page table cleanup
+void __internal_free_table(uint64_t *table, size_t level) {
+  for (size_t i = 0; i < PAGE_SIZE / sizeof(uint64_t); ++i) {
+    uint64_t pte = table[i];
+    if (!(pte & PTE_V))
+      continue;
+    if (level == 0) {
+      free_page(pte_2_addr(pte));
+    } else {
+      __internal_free_table(pte_2_addr(pte), level - 1);
+    }
+    table[i] = 0;
+  }
+  free_page(table);
+}
+
+void u_free_pagetable(uint64_t *root_table) {
+  __internal_free_table(root_table, 2);
+}
+
 // sv39 page mapping function.
 //
 // Maps the virtual page starting at vaddr to the physical page starting at

@@ -55,6 +55,10 @@ int create_process(void) {
   return proc->pid;
 }
 
+void cleanup_mem(struct proc *proc) {
+  unmap_page((uint64_t *)proc->page_table_root, TRAMPOLINE);
+}
+
 void init_pcb(void) {
   for (size_t i = 0; i < PROCS_MAX; ++i) {
     procs[i] = (struct proc){
